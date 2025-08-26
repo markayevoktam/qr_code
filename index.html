@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Fayldan Seriya Raqamlarni QR Kodga Aylantirish</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 50%, #fdbb2d 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 1000px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .description {
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            font-size: 18px;
+        }
+        
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #34495e;
+            font-size: 18px;
+        }
+        
+        .file-input-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #ecf0f1;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-input:hover {
+            background-color: #d6dbdf;
+            border-color: #2980b9;
+        }
+        
+        .file-formats {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        button {
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 200px;
+        }
+        
+        button:hover {
+            background: linear-gradient(to right, #2980b9, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        #clearBtn {
+            background: linear-gradient(to right, #e74c3c, #c0392b);
+        }
+        
+        #clearBtn:hover {
+            background: linear-gradient(to right, #c0392b, #e74c3c);
+        }
+        
+        .download-all-btn {
+            background: linear-gradient(to right, #27ae60, #2ecc71);
+        }
+        
+        .download-all-btn:hover {
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #d5f5e3;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .results-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+        
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .qr-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .qr-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .qr-code {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+        
+        .serial-number {
+            font-size: 14px;
+            color: #7f8c8d;
+            word-break: break-all;
+            margin-bottom: 10px;
+        }
+        
+        .download-btn {
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .download-btn:hover {
+            background: linear-gradient(to right, #2980b9, #3498db);
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .success-message {
+            color: #27ae60;
+            margin-top: 10px;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .no-data {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 30px;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, #3498db, #2980b9);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        @media (max-width: 768px) {
+            .buttons {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+            
+            .qr-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Excel Fayldan Seriya Raqamlarni QR Kodga Aylantirish</h1>
+            <p class="description">Excel, CSV yoki TXT fayldan seriya raqamlarni yuklang va ularni QR kodlarga aylantiring. Har bir QR kodni alohida yuklab olishingiz mumkin.</p>
+        </header>
+        
+        <div class="upload-section">
+            <div class="input-group">
+                <label for="fileInput">Faylni tanlang (Excel, CSV yoki TXT)</label>
+                <div class="file-input-container">
+                    <div class="file-input" id="fileInputLabel">
+                        Faylni bu yerga torting yoki tanlash uchun bosing
+                        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.txt" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;">
+                    </div>
+                </div>
+                <div class="file-formats">
+                    Qo'llab-quvvatlanadigan formatlar: .xlsx, .xls, .csv, .txt
+                </div>
+                <div class="file-info" id="fileInfo">
+                    <strong>Tanlangan fayl:</strong> <span id="fileName"></span><br>
+                    <strong>Seriya raqamlar soni:</strong> <span id="serialCount">0</span>
+                </div>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress" id="progress"></div>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button id="generateBtn" disabled>QR Kodlar Yaratish</button>
+                <button id="clearBtn">Tozalash</button>
+                <button id="downloadAllBtn" class="download-all-btn" disabled>Barchasini Yuklab Olish</button>
+            </div>
+        </div>
+        
+        <div class="results-section">
+            <h2>Yaratilgan QR Kodlar</h2>
+            <div class="no-data" id="noData">
+                <p>Hali hech qanday seriya raqam yuklanmadi yoki QR kod yaratilmadi.</p>
+            </div>
+            <div class="qr-grid" id="qrGrid">
+                <!-- QR kodlar shu yerga joylashtiriladi -->
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2024 Excel Fayldan QR Kodga Konvertor</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const fileInputLabel = document.getElementById('fileInputLabel');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const serialCount = document.getElementById('serialCount');
+            const generateBtn = document.getElementById('generateBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const downloadAllBtn = document.getElementById('downloadAllBtn');
+            const qrGrid = document.getElementById('qrGrid');
+            const noData = document.getElementById('noData');
+            const progressBar = document.getElementById('progressBar');
+            const progress = document.getElementById('progress');
+            
+            let serialNumbers = [];
+            let qrCodes = [];
+            
+            // Fayl yuklashni qayta ishlash
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                // Progress bar ko'rsatish
+                progressBar.style.display = 'block';
+                progress.style.width = '30%';
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = e.target.result;
+                    processFile(data, file);
+                };
+                
+                // Fayl turiga qarab o'qish
+                if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    reader.readAsText(file);
+                }
+            });
+            
+            // Fayl turlarini qayta ishlash
+            function processFile(data, file) {
+                serialNumbers = [];
+                
+                // Fayl nomini ko'rsatish
+                fileName.textContent = file.name;
+                fileInfo.style.display = 'block';
+                progress.style.width = '60%';
+                
+                try {
+                    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                        // Excel faylni qayta ishlash
+                        processExcelFile(data);
+                    } else if (file.name.endsWith('.csv')) {
+                        // CSV faylni qayta ishlash
+                        processCSVFile(data);
+                    } else {
+                        // TXT faylni qayta ishlash
+                        processTextFile(data);
+                    }
+                    
+                    // Seriya raqamlar sonini ko'rsatish
+                    serialCount.textContent = serialNumbers.length;
+                    
+                    // QR kod yaratish tugmasini faollashtirish
+                    generateBtn.disabled = serialNumbers.length === 0;
+                    
+                    if (serialNumbers.length === 0) {
+                        noData.style.display = 'block';
+                        alert('Faylda hech qanday seriya raqami topilmadi!');
+                    }
+                    
+                    progress.style.width = '100%';
+                    setTimeout(() => {
+                        progressBar.style.display = 'none';
+                    }, 500);
+                    
+                } catch (error) {
+                    console.error(error);
+                    alert('Faylni qayta ishlashda xatolik yuz berdi: ' + error.message);
+                    progressBar.style.display = 'none';
+                }
+            }
+            
+            // Excel faylni qayta ishlash
+            function processExcelFile(data) {
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                // Excel ma'lumotlarini JSON formatiga o'tkazish
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                
+                // Barcha qatorlarni aylanib chiqish
+                for (let row of jsonData) {
+                    if (Array.isArray(row)) {
+                        for (let cell of row) {
+                            if (cell !== null && cell !== undefined) {
+                                const value = String(cell).trim();
+                                if (value) serialNumbers.push(value);
+                            }
+                        }
+                    } else if (row !== null && row !== undefined) {
+                        const value = String(row).trim();
+                        if (value) serialNumbers.push(value);
+                    }
+                }
+            }
+            
+            // CSV faylni qayta ishlash
+            function processCSVFile(data) {
+                const lines = data.split(/\r?\n/);
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (line) {
+                        // Vergul, nuqta-vergul yoki tab bilan ajratilgan qiymatlarni olish
+                        const separators = /[,;\t]/;
+                        if (separators.test(line)) {
+                            const parts = line.split(separators);
+                            for (let part of parts) {
+                                part = part.trim().replace(/^"|"$/g, '');
+                                if (part) serialNumbers.push(part);
+                            }
+                        } else {
+                            serialNumbers.push(line);
+                        }
+                    }
+                }
+            }
+            
+            // Matn faylni qayta ishlash
+            function processTextFile(data) {
+                const lines = data.split(/\r?\n/);
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (line) {
+                        serialNumbers.push(line);
+                    }
+                }
+            }
+            
+            // QR kodlarni yaratish
+            generateBtn.addEventListener('click', function() {
+                if (serialNumbers.length === 0) {
+                    alert('Iltimos, avval fayl yuklang!');
+                    return;
+                }
+                
+                // Progress bar ko'rsatish
+                progressBar.style.display = 'block';
+                progress.style.width = '0%';
+                
+                // Avvalgi QR kodlarni tozalash
+                qrGrid.innerHTML = '';
+                qrCodes = [];
+                noData.style.display = 'none';
+                
+                // Har bir seriya raqam uchun QR kod yaratish
+                let completed = 0;
+                serialNumbers.forEach((serial, index) => {
+                    setTimeout(() => {
+                        createQRCode(serial, index);
+                        completed++;
+                        progress.style.width = `${(completed / serialNumbers.length) * 100}%`;
+                        
+                        if (completed === serialNumbers.length) {
+                            setTimeout(() => {
+                                progressBar.style.display = 'none';
+                            }, 500);
+                        }
+                    }, index * 50);
+                });
+                
+                // Yuklab olish tugmasini faollashtirish
+                downloadAllBtn.disabled = false;
+            });
+            
+            // QR kod yaratish funksiyasi
+            function createQRCode(serial, index) {
+                const qrCard = document.createElement('div');
+                qrCard.className = 'qr-card';
+                
+                const serialElement = document.createElement('div');
+                serialElement.className = 'serial-number';
+                serialElement.textContent = serial.length > 20 ? serial.substring(0, 20) + '...' : serial;
+                serialElement.title = serial;
+                
+                const qrCodeElement = document.createElement('div');
+                qrCodeElement.className = 'qr-code';
+                qrCodeElement.id = `qrcode-${index}`;
+                
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'download-btn';
+                downloadBtn.textContent = 'Yuklab olish';
+                downloadBtn.onclick = function() {
+                    downloadQRCode(serial, index);
+                };
+                
+                qrCard.appendChild(serialElement);
+                qrCard.appendChild(qrCodeElement);
+                qrCard.appendChild(downloadBtn);
+                
+                qrGrid.appendChild(qrCard);
+                
+                // QR kod yaratish
+                try {
+                    const qrcode = new QRCode(qrCodeElement, {
+                        text: serial,
+                        width: 120,
+                        height: 120,
+                        colorDark: "#2c3e50",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                    
+                    qrCodes.push({
+                        element: qrCodeElement,
+                        serial: serial
+                    });
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+            
+            // QR kodni yuklab olish
+            function downloadQRCode(serial, index) {
+                const canvas = document.querySelector(`#qrcode-${index} canvas`);
+                if (!canvas) {
+                    alert('QR kod hali tayyor emas!');
+                    return;
+                }
+                
+                try {
+                    const link = document.createElement('a');
+                    link.download = `qr-code-${serial.replace(/[^a-zA-Z0-9]/g, '-')}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } catch (error) {
+                    console.error(error);
+                    alert('QR kodni yuklab olishda xatolik yuz berdi!');
+                }
+            }
+            
+            // Barcha QR kodlarni yuklab olish
+            downloadAllBtn.addEventListener('click', function() {
+                if (qrCodes.length === 0) {
+                    alert('QR kodlar hali yaratilmagan!');
+                    return;
+                }
+                
+                alert('Har bir QR kodni alohida yuklab olishingiz mumkin. ZIP arxivini yaratish funksiyasi keyingi yangilanishda qoʻshiladi.');
+            });
+            
+            // Tozalash
+            clearBtn.addEventListener('click', function() {
+                fileInput.value = '';
+                fileInfo.style.display = 'none';
+                qrGrid.innerHTML = '';
+                serialNumbers = [];
+                qrCodes = [];
+                generateBtn.disabled = true;
+                downloadAllBtn.disabled = true;
+                noData.style.display = 'block';
+                progressBar.style.display = 'none';
+            });
+            
+            // Drag and drop qo'llab-quvvatlash
+            fileInputLabel.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                fileInputLabel.style.backgroundColor = '#d6dbdf';
+                fileInputLabel.style.borderColor = '#2980b9';
+            });
+            
+            fileInputLabel.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                fileInputLabel.style.backgroundColor = '#ecf0f1';
+                fileInputLabel.style.borderColor = '#3498db';
+            });
+            
+            fileInputLabel.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                fileInputLabel.style.backgroundColor = '#ecf0f1';
+                fileInputLabel.style.borderColor = '#3498db';
+                
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    fileInput.files = e.dataTransfer.files;
+                    const event = new Event('change');
+                    fileInput.dispatchEvent(event);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
