@@ -183,6 +183,7 @@
             padding: 15px;
             text-align: center;
             transition: transform 0.3s;
+            position: relative;
         }
         
         .qr-card:hover {
@@ -201,6 +202,22 @@
             color: #7f8c8d;
             word-break: break-all;
             margin-bottom: 10px;
+        }
+        
+        .serial-index {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
         }
         
         .download-btn {
@@ -257,6 +274,24 @@
             transition: width 0.3s;
         }
         
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .pagination button {
+            min-width: auto;
+            padding: 8px 15px;
+        }
+        
+        .pagination-info {
+            text-align: center;
+            margin-top: 10px;
+            color: #7f8c8d;
+        }
+        
         @media (max-width: 768px) {
             .buttons {
                 flex-direction: column;
@@ -268,6 +303,10 @@
             
             .qr-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .pagination {
+                flex-wrap: wrap;
             }
         }
     </style>
@@ -315,6 +354,14 @@
             <div class="qr-grid" id="qrGrid">
                 <!-- QR kodlar shu yerga joylashtiriladi -->
             </div>
+            <div class="pagination" id="pagination" style="display: none;">
+                <button id="prevPageBtn">Oldingi</button>
+                <span id="pageInfo">Sahifa 1/1</span>
+                <button id="nextPageBtn">Keyingi</button>
+            </div>
+            <div class="pagination-info" id="paginationInfo" style="display: none;">
+                Ko'rsatilmoqda: <span id="currentRange">0-0</span> dan <span id="totalItems">0</span> ta
+            </div>
         </div>
     </div>
 
@@ -336,9 +383,19 @@
             const noData = document.getElementById('noData');
             const progressBar = document.getElementById('progressBar');
             const progress = document.getElementById('progress');
+            const pagination = document.getElementById('pagination');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const pageInfo = document.getElementById('pageInfo');
+            const paginationInfo = document.getElementById('paginationInfo');
+            const currentRange = document.getElementById('currentRange');
+            const totalItems = document.getElementById('totalItems');
             
             let serialNumbers = [];
             let qrCodes = [];
+            let currentPage = 1;
+            const itemsPerPage = 100;
+            let totalPages = 1;
             
             // Fayl yuklashni qayta ishlash
             fileInput.addEventListener('change', function(e) {
@@ -482,6 +539,11 @@
                 qrCodes = [];
                 noData.style.display = 'none';
                 
+                // Sahifalash parametrlarini sozlash
+                currentPage = 1;
+                totalPages = Math.ceil(serialNumbers.length / itemsPerPage);
+                updatePaginationInfo();
+                
                 // Har bir seriya raqam uchun QR kod yaratish
                 let completed = 0;
                 serialNumbers.forEach((serial, index) => {
@@ -493,6 +555,7 @@
                         if (completed === serialNumbers.length) {
                             setTimeout(() => {
                                 progressBar.style.display = 'none';
+                                showCurrentPage();
                             }, 500);
                         }
                     }, index * 50);
@@ -506,6 +569,12 @@
             function createQRCode(serial, index) {
                 const qrCard = document.createElement('div');
                 qrCard.className = 'qr-card';
+                qrCard.dataset.index = index;
+                
+                // Sanoq raqami
+                const serialIndex = document.createElement('div');
+                serialIndex.className = 'serial-index';
+                serialIndex.textContent = index + 1;
                 
                 const serialElement = document.createElement('div');
                 serialElement.className = 'serial-number';
@@ -523,6 +592,7 @@
                     downloadQRCode(serial, index);
                 };
                 
+                qrCard.appendChild(serialIndex);
                 qrCard.appendChild(serialElement);
                 qrCard.appendChild(qrCodeElement);
                 qrCard.appendChild(downloadBtn);
@@ -548,6 +618,63 @@
                     console.error(error);
                 }
             }
+            
+            // Sahifalash ma'lumotlarini yangilash
+            function updatePaginationInfo() {
+                pageInfo.textContent = `Sahifa ${currentPage}/${totalPages}`;
+                
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, serialNumbers.length);
+                
+                currentRange.textContent = `${startIndex + 1}-${endIndex}`;
+                totalItems.textContent = serialNumbers.length;
+                
+                // Tugmalarni faollashtirish/faolsizlashtirish
+                prevPageBtn.disabled = currentPage === 1;
+                nextPageBtn.disabled = currentPage === totalPages;
+                
+                // Sahifalashni ko'rsatish
+                pagination.style.display = totalPages > 1 ? 'flex' : 'none';
+                paginationInfo.style.display = totalPages > 1 ? 'block' : 'none';
+            }
+            
+            // Joriy sahifani ko'rsatish
+            function showCurrentPage() {
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, serialNumbers.length);
+                
+                // Barcha QR kodlarni yashirish
+                const allCards = qrGrid.querySelectorAll('.qr-card');
+                allCards.forEach(card => {
+                    card.style.display = 'none';
+                });
+                
+                // Faqat joriy sahifadagi QR kodlarni ko'rsatish
+                for (let i = startIndex; i < endIndex; i++) {
+                    const card = qrGrid.querySelector(`.qr-card[data-index="${i}"]`);
+                    if (card) {
+                        card.style.display = 'block';
+                    }
+                }
+                
+                updatePaginationInfo();
+            }
+            
+            // Oldingi sahifa
+            prevPageBtn.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    showCurrentPage();
+                }
+            });
+            
+            // Keyingi sahifa
+            nextPageBtn.addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    showCurrentPage();
+                }
+            });
             
             // QR kodni yuklab olish
             function downloadQRCode(serial, index) {
@@ -591,6 +718,8 @@
                 downloadAllBtn.disabled = true;
                 noData.style.display = 'block';
                 progressBar.style.display = 'none';
+                pagination.style.display = 'none';
+                paginationInfo.style.display = 'none';
             });
             
             // Drag and drop qo'llab-quvvatlash
