@@ -249,6 +249,43 @@
       border-top: 1px solid #ddd;
     }
     
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      gap: 8px;
+    }
+    
+    .pagination button {
+      padding: 8px 15px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .pagination button:hover {
+      background: #f0f0f0;
+    }
+    
+    .pagination button.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .page-info {
+      text-align: center;
+      margin-top: 10px;
+      color: var(--gray);
+    }
+    
     @media (max-width: 768px) {
       .scanner-section {
         flex-direction: column;
@@ -264,6 +301,10 @@
       
       .btn {
         width: 100%;
+      }
+      
+      .pagination {
+        flex-wrap: wrap;
       }
     }
   </style>
@@ -293,6 +334,9 @@
     </div>
     
     <div class="actions">
+        <a href="index.html">  <button class="btn btn-primary">
+          <i class="fas fa-home"></i> Home
+        </button></a>
       <button class="btn btn-primary" onclick="downloadExcel()">
         <i class="fas fa-file-excel"></i> Excelga Saqlash
       </button>
@@ -325,6 +369,17 @@
         <h3>Hali ma'lumotlar mavjud emas</h3>
         <p>Shtrix kodni skanerlang yoki kiriting</p>
       </div>
+      
+      <!-- Pagination controls -->
+      <div id="pagination-controls" class="pagination" style="display: none;">
+        <button id="first-page" onclick="changePage(1)"><i class="fas fa-angle-double-left"></i></button>
+        <button id="prev-page" onclick="changePage(currentPage - 1)"><i class="fas fa-angle-left"></i></button>
+        <div id="page-numbers"></div>
+        <button id="next-page" onclick="changePage(currentPage + 1)"><i class="fas fa-angle-right"></i></button>
+        <button id="last-page" onclick="changePage(totalPages)"><i class="fas fa-angle-double-right"></i></button>
+      </div>
+      
+      <div id="page-info" class="page-info" style="display: none;"></div>
     </div>
     
     <div class="stats">
@@ -359,9 +414,17 @@
     const statusElement = document.getElementById('status');
     const successSound = document.getElementById('success-sound');
     const errorSound = document.getElementById('error-sound');
+    const paginationControls = document.getElementById('pagination-controls');
+    const pageInfo = document.getElementById('page-info');
+    const pageNumbers = document.getElementById('page-numbers');
+    
     let rows = JSON.parse(localStorage.getItem('barcodes') || '[]');
+    let currentPage = 1;
+    const itemsPerPage = 100;
+    let totalPages = 1;
     
     // Dastur ishga tushganda jadvalni chizish
+    updatePagination();
     renderTable();
     updateStats();
     setVolume(); // Ovoz balandligini sozlash
@@ -413,6 +476,9 @@
             time: now.toLocaleTimeString('uz-UZ')
           });
           
+          // Yangi kod qo'shilganda 1-sahifaga o'tamiz
+          currentPage = 1;
+          updatePagination();
           renderTable();
           updateStats();
           showStatus(`"${code}" muvaffaqiyatli qo'shildi`, "success");
@@ -423,11 +489,63 @@
       }
     });
     
+    // Pagination yangilash
+    function updatePagination() {
+      totalPages = Math.ceil(rows.length / itemsPerPage);
+      
+      if (rows.length <= itemsPerPage) {
+        paginationControls.style.display = 'none';
+        pageInfo.style.display = 'none';
+        return;
+      }
+      
+      paginationControls.style.display = 'flex';
+      pageInfo.style.display = 'block';
+      
+      // Sahifa raqamlarini yaratish
+      pageNumbers.innerHTML = '';
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, startPage + 4);
+      
+      if (endPage - startPage < 4) {
+        startPage = Math.max(1, endPage - 4);
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.textContent = i;
+        pageBtn.classList.toggle('active', i === currentPage);
+        pageBtn.onclick = () => changePage(i);
+        pageNumbers.appendChild(pageBtn);
+      }
+      
+      // Navigation tugmalarini yangilash
+      document.getElementById('first-page').disabled = currentPage === 1;
+      document.getElementById('prev-page').disabled = currentPage === 1;
+      document.getElementById('next-page').disabled = currentPage === totalPages;
+      document.getElementById('last-page').disabled = currentPage === totalPages;
+      
+      // Sahifa ma'lumotlarini yangilash
+      const startItem = (currentPage - 1) * itemsPerPage + 1;
+      const endItem = Math.min(currentPage * itemsPerPage, rows.length);
+      pageInfo.textContent = `${startItem}-${endItem} of ${rows.length} items`;
+    }
+    
+    // Sahifani o'zgartirish
+    function changePage(page) {
+      if (page < 1 || page > totalPages) return;
+      currentPage = page;
+      updatePagination();
+      renderTable();
+    }
+    
     // Jadvalni chizish
     function renderTable() {
       if (rows.length === 0) {
         tbody.innerHTML = '';
         emptyMessage.style.display = 'block';
+        paginationControls.style.display = 'none';
+        pageInfo.style.display = 'none';
         return;
       }
       
@@ -438,14 +556,19 @@
       const counts = {};
       rows.forEach(r => counts[r.code] = (counts[r.code] || 0) + 1);
       
+      // Joriy sahifadagi ma'lumotlarni olish
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = Math.min(startIndex + itemsPerPage, rows.length);
+      const pageRows = rows.slice(startIndex, endIndex);
+      
       // Jadval qatorlarini yaratish
-      rows.forEach((row, i) => {
+      pageRows.forEach((row, i) => {
         const tr = document.createElement('tr');
         if (counts[row.code] > 1) {
           tr.classList.add('duplicate');
         }
         tr.innerHTML = `
-          <td>${i+1}</td>
+          <td>${startIndex + i + 1}</td>
           <td>${row.code}</td>
           <td>${row.date}</td>
           <td>${row.time}</td>
@@ -518,6 +641,8 @@
       if (confirm("Barcha ma'lumotlarni o'chirishni istaysizmi?")) {
         rows = [];
         localStorage.removeItem('barcodes');
+        currentPage = 1;
+        updatePagination();
         renderTable();
         updateStats();
         showStatus("Barcha ma'lumotlar tozalandi", "success");
