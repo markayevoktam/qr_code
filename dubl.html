@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shtrix Kod Saqlash Ilovasi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: var(--dark);
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+    
+    header p {
+      opacity: 0.9;
+    }
+    
+    .scanner-section {
+      padding: 20px;
+      background: var(--light);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+    }
+    
+    .scanner-input {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .scanner-input input {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+    
+    .scanner-input input:focus {
+      outline: none;
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+    }
+    
+    .btn {
+      padding: 15px 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+    
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+    
+    .btn-success:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    
+    .actions {
+      padding: 15px 20px;
+      background: white;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .data-section {
+      padding: 20px;
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    
+    th {
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+    
+    tr:hover {
+      background-color: #e9ecef;
+    }
+    
+    tr.duplicate {
+      background-color: #ffebee;
+    }
+    
+    tr.duplicate:hover {
+      background-color: #ffcdd2;
+    }
+    
+    .status {
+      padding: 15px;
+      margin: 10px 20px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .empty-table {
+      text-align: center;
+      padding: 30px;
+      color: var(--gray);
+    }
+    
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      padding: 15px 20px;
+      background: #f8f9fa;
+      border-top: 1px solid #eee;
+    }
+    
+    .stat-card {
+      flex: 1;
+      min-width: 200px;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+    
+    .stat-card h3 {
+      font-size: 14px;
+      color: var(--gray);
+      margin-bottom: 8px;
+    }
+    
+    .stat-card p {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .audio-controls {
+      padding: 10px 20px;
+      background: #f0f2f5;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-top: 1px solid #ddd;
+    }
+    
+    @media (max-width: 768px) {
+      .scanner-section {
+        flex-direction: column;
+      }
+      
+      .scanner-input {
+        width: 100%;
+      }
+      
+      .actions {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-barcode"></i> Shtrix Kod Saqlash Ilovasi</h1>
+      <p>Skanerlang, saqlang va boshqaring</p>
+    </header>
+    
+    <!-- Audio elementlar ovozlar uchun -->
+    <audio id="success-sound">
+      <source src="audio/success-340660.mp3" type="audio/mp3">
+    </audio>
+    <audio id="error-sound">
+      <source src="audio/windows-error-sound-effect-35894.mp3" type="audio/mp3">
+    </audio>
+    
+    <div class="scanner-section">
+      <div class="scanner-input">
+        <input type="text" id="scanner" placeholder="Shtrix kodni skanerlang yoki kiriting..." autofocus>
+      </div>
+      <button class="btn btn-primary" onclick="focusScanner()">
+        <i class="fas fa-crosshairs"></i> Fokusni Olish
+      </button>
+    </div>
+    
+    <div class="actions">
+      <button class="btn btn-primary" onclick="downloadExcel()">
+        <i class="fas fa-file-excel"></i> Excelga Saqlash
+      </button>
+      <button class="btn btn-success" onclick="highlightDuplicates()">
+        <i class="fas fa-copy"></i> Dublikatlarni Ko'rsatish
+      </button>
+      <button class="btn btn-danger" onclick="clearData()">
+        <i class="fas fa-trash"></i> Ma'lumotlarni Tozalash
+      </button>
+    </div>
+    
+    <div id="status" class="status"></div>
+    
+    <div class="data-section">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Kod</th>
+            <th>Sana</th>
+            <th>Vaqt</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <!-- Ma'lumotlar shu yerda ko'rsatiladi -->
+        </tbody>
+      </table>
+      <div id="empty-message" class="empty-table">
+        <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px;"></i>
+        <h3>Hali ma'lumotlar mavjud emas</h3>
+        <p>Shtrix kodni skanerlang yoki kiriting</p>
+      </div>
+    </div>
+    
+    <div class="stats">
+      <div class="stat-card">
+        <h3>Jami Kodlar</h3>
+        <p id="total-codes">0</p>
+      </div>
+      <div class="stat-card">
+        <h3>Dublikatlar</h3>
+        <p id="duplicate-count">0</p>
+      </div>
+      <div class="stat-card">
+        <h3>Oxirgi Qo'shilgan</h3>
+        <p id="last-added">-</p>
+      </div>
+    </div>
+    
+    <div class="audio-controls">
+      <label for="volume-control"><i class="fas fa-volume-up"></i> Ovoz Balandligi:</label>
+      <input type="range" id="volume-control" min="0" max="1" step="0.1" value="0.7" onchange="setVolume()">
+      <button class="btn btn-primary" onclick="testSounds()">
+        <i class="fas fa-music"></i> Ovozlarni Test Qilish
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // O'zgaruvchilar
+    const input = document.getElementById('scanner');
+    const tbody = document.getElementById('table-body');
+    const emptyMessage = document.getElementById('empty-message');
+    const statusElement = document.getElementById('status');
+    const successSound = document.getElementById('success-sound');
+    const errorSound = document.getElementById('error-sound');
+    let rows = JSON.parse(localStorage.getItem('barcodes') || '[]');
+    
+    // Dastur ishga tushganda jadvalni chizish
+    renderTable();
+    updateStats();
+    setVolume(); // Ovoz balandligini sozlash
+    
+    // Ovoz balandligini sozlash
+    function setVolume() {
+      const volume = document.getElementById('volume-control').value;
+      successSound.volume = volume;
+      errorSound.volume = volume;
+    }
+    
+    // Ovozlarni test qilish
+    function testSounds() {
+      successSound.play();
+      setTimeout(() => {
+        errorSound.play();
+      }, 500);
+      showStatus("Ovozlar test rejimida", "success");
+    }
+    
+    // Scanner inputiga fokus berish
+    function focusScanner() {
+      input.focus();
+      showStatus("Skanerlashga tayyor", "success");
+    }
+    
+    // Skaner yoki qo'lda yozilgan kodni qo'shish
+    input.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const code = input.value.trim();
+        if (code) {
+          // Kodni tekshirish - dublikat bo'lmasligi kerak
+          const isDuplicate = rows.some(row => row.code === code);
+          
+          if (isDuplicate) {
+            // Dublikat kod bo'lsa
+            showStatus(`"${code}" allaqachon mavjud!`, "error");
+            errorSound.currentTime = 0;
+            errorSound.play();
+            input.value = "";
+            return;
+          }
+          
+          // Yangi kodni qo'shamiz
+          const now = new Date();
+          rows.unshift({ 
+            code, 
+            date: now.toLocaleDateString('uz-UZ'),
+            time: now.toLocaleTimeString('uz-UZ')
+          });
+          
+          renderTable();
+          updateStats();
+          showStatus(`"${code}" muvaffaqiyatli qo'shildi`, "success");
+          successSound.currentTime = 0;
+          successSound.play();
+          input.value = "";
+        }
+      }
+    });
+    
+    // Jadvalni chizish
+    function renderTable() {
+      if (rows.length === 0) {
+        tbody.innerHTML = '';
+        emptyMessage.style.display = 'block';
+        return;
+      }
+      
+      emptyMessage.style.display = 'none';
+      tbody.innerHTML = "";
+      
+      // Dublikatlarni hisoblash
+      const counts = {};
+      rows.forEach(r => counts[r.code] = (counts[r.code] || 0) + 1);
+      
+      // Jadval qatorlarini yaratish
+      rows.forEach((row, i) => {
+        const tr = document.createElement('tr');
+        if (counts[row.code] > 1) {
+          tr.classList.add('duplicate');
+        }
+        tr.innerHTML = `
+          <td>${i+1}</td>
+          <td>${row.code}</td>
+          <td>${row.date}</td>
+          <td>${row.time}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      
+      // Ma'lumotlarni saqlash
+      localStorage.setItem('barcodes', JSON.stringify(rows));
+    }
+    
+    // Excel formatida yuklab olish
+    function downloadExcel() {
+      if (rows.length === 0) {
+        showStatus("Yuklab olish uchun ma'lumotlar mavjud emas", "error");
+        return;
+      }
+      
+      // Excel formatiga mos CSV yaratish
+      let csv = "\uFEFFID,Kod,Sana,Vaqt\n"; // UTF-8 BOM for Excel
+      rows.forEach((r, i) => {
+        csv += `${i+1},${r.code},${r.date},${r.time}\n`;
+      });
+      
+      // Blob yaratish va yuklab olish
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'shtrix_kodlar.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showStatus("Excel fayli muvaffaqiyatli yuklab olindi", "success");
+    }
+    
+    // Dublikatlarni ajratib ko'rsatish
+    function highlightDuplicates() {
+      const counts = {};
+      rows.forEach(r => counts[r.code] = (counts[r.code] || 0) + 1);
+      const duplicates = Object.keys(counts).filter(key => counts[key] > 1);
+      
+      if (duplicates.length === 0) {
+        showStatus("Dublikat kodlar topilmadi", "success");
+        return;
+      }
+      
+      // Jadvaldagi dublikatlarni ajratib ko'rsatish
+      const tableRows = tbody.querySelectorAll('tr');
+      tableRows.forEach(tr => {
+        const code = tr.cells[1].textContent;
+        if (duplicates.includes(code)) {
+          tr.classList.add('duplicate');
+        }
+      });
+      
+      showStatus(`${duplicates.length} ta dublikat kod topildi`, "error");
+      errorSound.currentTime = 0;
+      errorSound.play();
+    }
+    
+    // Ma'lumotlarni tozalash
+    function clearData() {
+      if (rows.length === 0) {
+        showStatus("Tozalash uchun ma'lumotlar mavjud emas", "error");
+        return;
+      }
+      
+      if (confirm("Barcha ma'lumotlarni o'chirishni istaysizmi?")) {
+        rows = [];
+        localStorage.removeItem('barcodes');
+        renderTable();
+        updateStats();
+        showStatus("Barcha ma'lumotlar tozalandi", "success");
+      }
+    }
+    
+    // Statistikani yangilash
+    function updateStats() {
+      document.getElementById('total-codes').textContent = rows.length;
+      
+      // Dublikatlarni hisoblash
+      const counts = {};
+      rows.forEach(r => counts[r.code] = (counts[r.code] || 0) + 1);
+      const duplicates = Object.keys(counts).filter(key => counts[key] > 1);
+      document.getElementById('duplicate-count').textContent = duplicates.length;
+      
+      // Oxirgi qo'shilgan kod
+      document.getElementById('last-added').textContent = rows.length > 0 ? rows[0].code : '-';
+    }
+    
+    // Status xabarini ko'rsatish
+    function showStatus(message, type) {
+      statusElement.textContent = message;
+      statusElement.className = `status ${type}`;
+      
+      // 5 soniyadan so'ng xabarni yashirish
+      setTimeout(() => {
+        statusElement.textContent = '';
+        statusElement.className = 'status';
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
