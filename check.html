@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excel Bazali Shtrix Kod Tekshirish</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --info: #3a0ca3;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: var(--dark);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+    
+    header p {
+      opacity: 0.9;
+    }
+    
+    .tabs {
+      display: flex;
+      background: #e9ecef;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .tab {
+      padding: 15px 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab.active {
+      border-bottom: 3px solid var(--primary);
+      background: white;
+    }
+    
+    .tab-content {
+      display: none;
+      padding: 20px;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .upload-section {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .file-upload {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .file-upload-label {
+      display: inline-block;
+      padding: 15px 25px;
+      background: var(--primary);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+    
+    .file-upload-label:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+    
+    .file-info {
+      margin-top: 10px;
+      font-size: 14px;
+      color: var(--gray);
+    }
+    
+    .scanner-section {
+      padding: 20px;
+      background: white;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .scanner-input {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .scanner-input input {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+    
+    .scanner-input input:focus {
+      outline: none;
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+    }
+    
+    .btn {
+      padding: 15px 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+    
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+    
+    .btn-success:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    
+    .btn-warning {
+      background: var(--warning);
+      color: white;
+    }
+    
+    .btn-warning:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    
+    .btn-info {
+      background: var(--info);
+      color: white;
+    }
+    
+    .btn-info:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    
+    .status {
+      padding: 15px;
+      margin: 10px 20px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .status.info {
+      background: #cce5ff;
+      color: #004085;
+      border: 1px solid #b8daff;
+    }
+    
+    .status.warning {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+    }
+    
+    .data-section {
+      padding: 20px;
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    
+    th {
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+    
+    tr:hover {
+      background-color: #e9ecef;
+    }
+    
+    tr.found {
+      background-color: #d4edda;
+    }
+    
+    tr.not-found {
+      background-color: #f8d7da;
+    }
+    
+    tr.duplicate {
+      background-color: #fff3cd;
+    }
+    
+    .empty-table {
+      text-align: center;
+      padding: 30px;
+      color: var(--gray);
+    }
+    
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      padding: 15px 20px;
+      background: #f8f9fa;
+      border-top: 1px solid #eee;
+    }
+    
+    .stat-card {
+      flex: 1;
+      min-width: 200px;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+    
+    .stat-card h3 {
+      font-size: 14px;
+      color: var(--gray);
+      margin-bottom: 8px;
+    }
+    
+    .stat-card p {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .audio-controls {
+      padding: 10px 20px;
+      background: #f0f2f5;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-top: 1px solid #ddd;
+    }
+    
+    .search-box {
+      margin: 15px 0;
+      display: flex;
+      gap: 10px;
+    }
+    
+    .search-box input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      gap: 8px;
+    }
+    
+    .pagination button {
+      padding: 8px 15px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .pagination button:hover {
+      background: #f0f0f0;
+    }
+    
+    .pagination button.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .page-info {
+      text-align: center;
+      margin-top: 10px;
+      color: var(--gray);
+    }
+    
+    .auto-save-info {
+      text-align: center;
+      padding: 10px;
+      background: #e9ecef;
+      font-size: 14px;
+      color: var(--gray);
+      border-top: 1px solid #ddd;
+    }
+    
+    @media (max-width: 768px) {
+      .scanner-section {
+        flex-direction: column;
+      }
+      
+      .scanner-input {
+        width: 100%;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .tabs {
+        flex-direction: column;
+      }
+      
+      .search-box {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-barcode"></i> Excel Bazali Shtrix Kod Tekshirish</h1>
+      <p>Excel fayl yuklang va shtrix kodlarni tekshiring</p>
+    </header>
+    
+    <div class="tabs">
+      <div class="tab active" data-tab="check">Kod Tekshirish</div>
+      <div class="tab" data-tab="base">Bazadagi Kodlar</div>
+    </div>
+    
+    <!-- Audio elementlar ovozlar uchun -->
+    <audio id="success-sound">
+      <source src="audio/success-340660.mp3" type="audio/mp3">
+    </audio>
+    <audio id="error-sound">
+      <source src="audio/windows-error-sound-effect-35894.mp3" type="audio/mp3">
+    </audio>
+    <audio id="duplicate-sound">
+      <source src="audio/windows-error-sound-effect-35894.mp3" type="audio/mp3">
+    </audio>
+    
+    <!-- Kod Tekshirish tab -->
+    <div class="tab-content active" id="check-tab">
+      <div class="upload-section">
+        <div class="file-upload">
+          <label for="excel-file" class="file-upload-label">
+            <i class="fas fa-file-excel"></i> Excel Fayl Yuklash
+          </label>
+          <a href="index.html">
+            <button class="btn btn-primary">
+          <i class="fas fa-home"></i> Home
+        </button>
+          </a>
+          <input type="file" id="excel-file" accept=".xlsx, .xls" style="display: none;">
+          <div class="file-info" id="file-info">Hech qanday fayl yuklanmagan</div>
+        </div>
+      </div>
+      
+      <div class="scanner-section">
+        <div class="scanner-input">
+          <input type="text" id="scanner" placeholder="Shtrix kodni skanerlang yoki kiriting..." autofocus disabled>
+        </div>
+        <button class="btn btn-primary" onclick="focusScanner()" disabled id="focus-btn">
+          <i class="fas fa-crosshairs"></i> Fokusni Olish
+        </button>
+      </div>
+      
+      <div id="status" class="status info">
+        Excel fayl yuklang va shtrix kodlarni tekshiring
+      </div>
+      
+      <div class="data-section">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Kod</th>
+              <th>Holat</th>
+              <th>Sana</th>
+              <th>Vaqt</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Ma'lumotlar shu yerda ko'rsatiladi -->
+          </tbody>
+        </table>
+        <div id="empty-message" class="empty-table">
+          <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px;"></i>
+          <h3>Hali ma'lumotlar mavjud emas</h3>
+          <p>Shtrix kodni skanerlang yoki kiriting</p>
+        </div>
+      </div>
+      
+      <div class="stats">
+        <div class="stat-card">
+          <h3>Jami Tekshirilgan</h3>
+          <p id="total-checked">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Topildi</h3>
+          <p id="found-count">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Topilmadi</h3>
+          <p id="not-found-count">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Dublikat</h3>
+          <p id="duplicate-count">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Bazadagi Kodlar</h3>
+          <p id="base-codes">0</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bazadagi Kodlar tab -->
+    <div class="tab-content" id="base-tab">
+      <div class="data-section">
+        <div class="search-box">
+          <input type="text" id="search-base" placeholder="Bazadan kod qidirish..." disabled>
+          <button class="btn btn-primary" id="search-btn" disabled>
+            <i class="fas fa-search"></i> Qidirish
+          </button>
+          <button class="btn btn-warning" onclick="clearSearch()" id="clear-search-btn" disabled>
+            <i class="fas fa-times"></i> Tozalash
+          </button>
+        </div>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Kod</th>
+            </tr>
+          </thead>
+          <tbody id="base-table-body">
+            <!-- Bazadagi kodlar shu yerda ko'rsatiladi -->
+          </tbody>
+        </table>
+        <div id="base-empty-message" class="empty-table">
+          <i class="fas fa-database" style="font-size: 48px; margin-bottom: 15px;"></i>
+          <h3>Baza yuklanmagan</h3>
+          <p>Excel fayl yuklang va bazadagi kodlarni ko'ring</p>
+        </div>
+        
+        <div class="pagination" id="base-pagination" style="display: none;">
+          <button id="base-first-page" onclick="changeBasePage(1)"><i class="fas fa-angle-double-left"></i></button>
+          <button id="base-prev-page" onclick="changeBasePage(currentBasePage - 1)"><i class="fas fa-angle-left"></i></button>
+          <div id="base-page-numbers"></div>
+          <button id="base-next-page" onclick="changeBasePage(currentBasePage + 1)"><i class="fas fa-angle-right"></i></button>
+          <button id="base-last-page" onclick="changeBasePage(totalBasePages)"><i class="fas fa-angle-double-right"></i></button>
+        </div>
+        
+        <div id="base-page-info" class="page-info" style="display: none;"></div>
+      </div>
+    </div>
+    
+    <div class="audio-controls">
+      <label for="volume-control"><i class="fas fa-volume-up"></i> Ovoz Balandligi:</label>
+      <input type="range" id="volume-control" min="0" max="1" step="0.1" value="0.7" onchange="setVolume()">
+      <button class="btn btn-primary" onclick="testSounds()">
+        <i class="fas fa-music"></i> Ovozlarni Test Qilish
+      </button>
+      <button class="btn btn-danger" onclick="clearAllData()">
+        <i class="fas fa-trash"></i> Barcha Ma'lumotlarni Tozalash
+      </button>
+      <div class="stats">
+  <!-- ...stat-card lar... -->
+</div>
+
+  <div style="text-align:center; margin: 20px;">
+    <button class="btn btn-danger" onclick="downloadNotFoundCodes()" id="download-notfound-btn" disabled>
+      <i class="fas fa-download"></i> Topilmagan Kodlarni Yuklab Olish
+    </button>
+  </div>
+    </div>
+    
+    <div class="auto-save-info">
+      <i class="fas fa-info-circle"></i> Ma'lumotlar avtomatik ravishda saqlanadi. Sayt yangilansa ham ma'lumotlar yo'qolmaydi.
+    </div>
+  </div>
+
+  <script>
+    // O'zgaruvchilar
+    const input = document.getElementById('scanner');
+    const fileInput = document.getElementById('excel-file');
+    const fileInfo = document.getElementById('file-info');
+    const tbody = document.getElementById('table-body');
+    const baseTbody = document.getElementById('base-table-body');
+    const emptyMessage = document.getElementById('empty-message');
+    const baseEmptyMessage = document.getElementById('base-empty-message');
+    const statusElement = document.getElementById('status');
+    const successSound = document.getElementById('success-sound');
+    const errorSound = document.getElementById('error-sound');
+    const duplicateSound = document.getElementById('duplicate-sound');
+    const focusBtn = document.getElementById('focus-btn');
+    const searchInput = document.getElementById('search-base');
+    const searchBtn = document.getElementById('search-btn');
+    const clearSearchBtn = document.getElementById('clear-search-btn');
+    
+    let baseCodes = [];
+    let checkedCodes = [];
+    let filteredBaseCodes = [];
+    let currentBasePage = 1;
+    const baseItemsPerPage = 50;
+    let totalBasePages = 1;
+    
+    // Dastur yuklanganda saqlangan ma'lumotlarni yuklash
+    document.addEventListener('DOMContentLoaded', function() {
+      loadSavedData();
+      setVolume();
+    });
+    
+    // Ma'lumotlarni saqlash va yuklash funksiyalari
+    function saveData() {
+      try {
+        // LocalStorage ga ma'lumotlarni saqlash
+        localStorage.setItem('barcodeBaseCodes', JSON.stringify(baseCodes));
+        localStorage.setItem('barcodeCheckedCodes', JSON.stringify(checkedCodes));
+        console.log('Ma\'lumotlar saqlandi');
+      } catch (e) {
+        console.error('LocalStorage ga saqlashda xatolik:', e);
+      }
+    }
+    
+    function loadSavedData() {
+      try {
+        // LocalStorage dan ma'lumotlarni yuklash
+        const savedBaseCodes = localStorage.getItem('barcodeBaseCodes');
+        const savedCheckedCodes = localStorage.getItem('barcodeCheckedCodes');
+        
+        if (savedBaseCodes) {
+          baseCodes = JSON.parse(savedBaseCodes);
+          if (baseCodes.length > 0) {
+            fileInfo.textContent = `Avval yuklangan baza (${baseCodes.length} ta kod)`;
+            input.disabled = false;
+            focusBtn.disabled = false;
+            searchInput.disabled = false;
+            searchBtn.disabled = false;
+            clearSearchBtn.disabled = false;
+            showStatus(`Avval yuklangan baza qayta tiklandi. ${baseCodes.length} ta kod mavjud.`, "success");
+          }
+        }
+        
+        if (savedCheckedCodes) {
+          checkedCodes = JSON.parse(savedCheckedCodes);
+          if (checkedCodes.length > 0) {
+            renderTable();
+            updateStats();
+            showStatus(`Avval tekshirilgan ${checkedCodes.length} ta kod qayta tiklandi.`, "success");
+          }
+        }
+        
+        // Bazadagi kodlarni ko'rsatish
+        filteredBaseCodes = [...baseCodes];
+        updateBasePagination();
+        renderBaseTable();
+        
+      } catch (e) {
+        console.error('LocalStorage dan yuklashda xatolik:', e);
+      }
+    }
+    
+    function clearAllData() {
+      if (confirm("Barcha ma'lumotlarni o'chirishni istaysizmi? Bu amalni ortga qaytarib bo'lmaydi.")) {
+        try {
+          localStorage.removeItem('barcodeBaseCodes');
+          localStorage.removeItem('barcodeCheckedCodes');
+          
+          baseCodes = [];
+          checkedCodes = [];
+          filteredBaseCodes = [];
+          
+          fileInfo.textContent = "Hech qanday fayl yuklanmagan";
+          input.disabled = true;
+          focusBtn.disabled = true;
+          searchInput.disabled = true;
+          searchBtn.disabled = true;
+          clearSearchBtn.disabled = true;
+          
+          renderTable();
+          renderBaseTable();
+          updateStats();
+          
+          showStatus("Barcha ma'lumotlar tozalandi", "success");
+        } catch (e) {
+          console.error('Ma\'lumotlarni tozalashda xatolik:', e);
+          showStatus("Xatolik yuz berdi. Ma'lumotlarni tozalab bo'lmadi.", "error");
+        }
+      }
+    }
+    
+    // Tablar uchun funksiya
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+      });
+    });
+    
+    // Ovoz balandligini sozlash
+    function setVolume() {
+      const volume = document.getElementById('volume-control').value;
+      successSound.volume = volume;
+      errorSound.volume = volume;
+      duplicateSound.volume = volume;
+    }
+    
+    // Ovozlarni test qilish
+    function testSounds() {
+      successSound.play();
+      setTimeout(() => {
+        errorSound.play();
+      }, 500);
+      setTimeout(() => {
+        duplicateSound.play();
+      }, 1000);
+      showStatus("Ovozlar test rejimida", "success");
+    }
+    
+    // Scanner inputiga fokus berish
+    function focusScanner() {
+      input.focus();
+      showStatus("Skanerlashga tayyor", "success");
+    }
+    
+    // Excel faylini yuklash
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      fileInfo.textContent = `Yuklanmoqda: ${file.name}...`;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          
+          // Birinchi jadvalni o'qiymiz
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+          
+          // Shtrix kodlarni ajratib olish
+          baseCodes = [];
+          jsonData.forEach(row => {
+            // Har bir ustunni tekshirib, kodlarni topish
+            for (let key in row) {
+              const value = String(row[key]).trim();
+              if (value.length > 3) { // Shtrix kod deb hisoblash
+                baseCodes.push(value);
+                break;
+              }
+            }
+          });
+          
+          fileInfo.textContent = `Yuklandi: ${file.name} (${baseCodes.length} ta kod)`;
+          input.disabled = false;
+          focusBtn.disabled = false;
+          searchInput.disabled = false;
+          searchBtn.disabled = false;
+          clearSearchBtn.disabled = false;
+          
+          showStatus(`Baza yuklandi! ${baseCodes.length} ta kod mavjud. Endi shtrix kodlarni tekshirishingiz mumkin.`, "success");
+          updateStats();
+          
+          // Bazadagi kodlarni ko'rsatish
+          filteredBaseCodes = [...baseCodes];
+          updateBasePagination();
+          renderBaseTable();
+          
+          // Ma'lumotlarni saqlash
+          saveData();
+          
+        } catch (error) {
+          console.error(error);
+          fileInfo.textContent = "Xatolik: Faylni o'qib bo'lmadi";
+          showStatus("Faylni o'qishda xatolik yuz berdi. Iltimos, boshqa fayl yuklang.", "error");
+        }
+      };
+      
+      reader.readAsArrayBuffer(file);
+    });
+    
+    // Skaner yoki qo'lda yozilgan kodni tekshirish
+    input.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const code = input.value.trim();
+        if (code) {
+          // Kodni tekshirish
+          const isFound = baseCodes.includes(code);
+          const now = new Date();
+          
+          // Dublikatni tekshirish
+          const isDuplicate = checkedCodes.some(item => item.code === code);
+          
+          // Natijani saqlash
+          checkedCodes.unshift({
+            code,
+            found: isFound,
+            duplicate: isDuplicate,
+            date: now.toLocaleDateString('uz-UZ'),
+            time: now.toLocaleTimeString('uz-UZ')
+          });
+          
+          // Jadvalni yangilash
+          renderTable();
+          updateStats();
+          
+          // Ovoz chiqarish va xabar ko'rsatish
+          if (isDuplicate) {
+            showStatus(`"${code}" - Bu kod avval tekshirilgan (DUBLIKAT)`, "warning");
+            duplicateSound.currentTime = 0;
+            duplicateSound.play();
+          } else if (isFound) {
+            showStatus(`"${code}" bazadan TOPILDI`, "success");
+            successSound.currentTime = 0;
+            successSound.play();
+          } else {
+            showStatus(`"${code}" bazadan TOPILMADI`, "error");
+            errorSound.currentTime = 0;
+            errorSound.play();
+          }
+          
+          // Ma'lumotlarni saqlash
+          saveData();
+          
+          input.value = "";
+        }
+      }
+    });
+    
+    // Bazadan qidirish
+    searchBtn.addEventListener('click', function() {
+      const searchTerm = searchInput.value.trim().toLowerCase();
+      if (searchTerm) {
+        filteredBaseCodes = baseCodes.filter(code => 
+          code.toLowerCase().includes(searchTerm)
+        );
+        showStatus(`"${searchTerm}" so'ziga ${filteredBaseCodes.length} ta kod topildi`, "success");
+      } else {
+        filteredBaseCodes = [...baseCodes];
+      }
+      
+      currentBasePage = 1;
+      updateBasePagination();
+      renderBaseTable();
+    });
+    
+    // Qidiruvni tozalash
+    function clearSearch() {
+      searchInput.value = "";
+      filteredBaseCodes = [...baseCodes];
+      currentBasePage = 1;
+      updateBasePagination();
+      renderBaseTable();
+      showStatus("Qidiruv tozalandi", "info");
+    }
+    
+    // Bazadagi jadvalni chizish
+    function renderBaseTable() {
+      if (filteredBaseCodes.length === 0) {
+        baseTbody.innerHTML = '';
+        baseEmptyMessage.style.display = 'block';
+        document.getElementById('base-pagination').style.display = 'none';
+        document.getElementById('base-page-info').style.display = 'none';
+        return;
+      }
+      
+      baseEmptyMessage.style.display = 'none';
+      baseTbody.innerHTML = "";
+      
+      // Joriy sahifadagi ma'lumotlarni olish
+      const startIndex = (currentBasePage - 1) * baseItemsPerPage;
+      const endIndex = Math.min(startIndex + baseItemsPerPage, filteredBaseCodes.length);
+      const pageRows = filteredBaseCodes.slice(startIndex, endIndex);
+      
+      // Jadval qatorlarini yaratish
+      pageRows.forEach((code, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${startIndex + i + 1}</td>
+          <td>${code}</td>
+        `;
+        baseTbody.appendChild(tr);
+      });
+      
+      document.getElementById('base-pagination').style.display = 'flex';
+      document.getElementById('base-page-info').style.display = 'block';
+    }
+    
+    // Bazadagi pagination yangilash
+    function updateBasePagination() {
+      totalBasePages = Math.ceil(filteredBaseCodes.length / baseItemsPerPage);
+      
+      if (filteredBaseCodes.length <= baseItemsPerPage) {
+        document.getElementById('base-pagination').style.display = 'none';
+        document.getElementById('base-page-info').style.display = 'none';
+        return;
+      }
+      
+      document.getElementById('base-pagination').style.display = 'flex';
+      document.getElementById('base-page-info').style.display = 'block';
+      
+      // Sahifa raqamlarini yaratish
+      const pageNumbers = document.getElementById('base-page-numbers');
+      pageNumbers.innerHTML = '';
+      
+      let startPage = Math.max(1, currentBasePage - 2);
+      let endPage = Math.min(totalBasePages, startPage + 4);
+      
+      if (endPage - startPage < 4) {
+        startPage = Math.max(1, endPage - 4);
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.textContent = i;
+        pageBtn.classList.toggle('active', i === currentBasePage);
+        pageBtn.onclick = () => changeBasePage(i);
+        pageNumbers.appendChild(pageBtn);
+      }
+      
+      // Navigation tugmalarini yangilash
+      document.getElementById('base-first-page').disabled = currentBasePage === 1;
+      document.getElementById('base-prev-page').disabled = currentBasePage === 1;
+      document.getElementById('base-next-page').disabled = currentBasePage === totalBasePages;
+      document.getElementById('base-last-page').disabled = currentBasePage === totalBasePages;
+      
+      // Sahifa ma'lumotlarini yangilash
+      const startItem = (currentBasePage - 1) * baseItemsPerPage + 1;
+      const endItem = Math.min(currentBasePage * baseItemsPerPage, filteredBaseCodes.length);
+      document.getElementById('base-page-info').textContent = 
+        `${startItem}-${endItem} of ${filteredBaseCodes.length} items`;
+    }
+    
+    // Bazadagi sahifani o'zgartirish
+    function changeBasePage(page) {
+      if (page < 1 || page > totalBasePages) return;
+      currentBasePage = page;
+      updateBasePagination();
+      renderBaseTable();
+    }
+    
+    // Tekshirish jadvalini chizish
+    function renderTable() {
+      if (checkedCodes.length === 0) {
+        tbody.innerHTML = '';
+        emptyMessage.style.display = 'block';
+        return;
+      }
+      
+      emptyMessage.style.display = 'none';
+      tbody.innerHTML = "";
+      
+      // Jadval qatorlarini yaratish
+      checkedCodes.forEach((item, i) => {
+        const tr = document.createElement('tr');
+        
+        if (item.duplicate) {
+          tr.classList.add('duplicate');
+        } else if (item.found) {
+          tr.classList.add('found');
+        } else {
+          tr.classList.add('not-found');
+        }
+        
+        tr.innerHTML = `
+          <td>${i+1}</td>
+          <td>${item.code}</td>
+          <td>${item.duplicate ? 
+            '<span style="color: #856404;"><i class="fas fa-copy"></i> Dublikat</span>' : 
+            item.found ? 
+            '<span style="color: green;"><i class="fas fa-check-circle"></i> Topildi</span>' : 
+            '<span style="color: red;"><i class="fas fa-times-circle"></i> Topilmadi</span>'}</td>
+          <td>${item.date}</td>
+          <td>${item.time}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    
+    // Statistikani yangilash
+    function updateStats() {
+      document.getElementById('total-checked').textContent = checkedCodes.length;
+      
+      const foundCount = checkedCodes.filter(item => item.found && !item.duplicate).length;
+      const notFoundCount = checkedCodes.filter(item => !item.found && !item.duplicate).length;
+      const duplicateCount = checkedCodes.filter(item => item.duplicate).length;
+      
+      document.getElementById('found-count').textContent = foundCount;
+      document.getElementById('not-found-count').textContent = notFoundCount;
+      document.getElementById('duplicate-count').textContent = duplicateCount;
+      document.getElementById('base-codes').textContent = baseCodes.length;
+    }
+    
+    // Status xabarini ko'rsatish
+    function showStatus(message, type) {
+      statusElement.textContent = message;
+      statusElement.className = `status ${type}`;
+      
+      // 5 soniyadan so'ng xabarni yashirish
+      setTimeout(() => {
+        statusElement.textContent = '';
+        statusElement.className = 'status';
+      }, 5000);
+    }
+
+
+    // ...existing code...
+function downloadNotFoundCodes() {
+  const notFoundCodes = checkedCodes
+    .filter(item => !item.found && !item.duplicate)
+    .map(item => item.code);
+
+  if (notFoundCodes.length === 0) {
+    showStatus("Topilmagan kodlar mavjud emas!", "info");
+    return;
+  }
+
+  const blob = new Blob([notFoundCodes.join('\n')], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'topilmagan_kodlar.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showStatus("Topilmagan kodlar yuklab olindi!", "success");
+}
+
+// ...existing code...
+// updateStats funksiyasini o'zgartiring:
+function updateStats() {
+  document.getElementById('total-checked').textContent = checkedCodes.length;
+
+  const foundCount = checkedCodes.filter(item => item.found && !item.duplicate).length;
+  const notFoundCount = checkedCodes.filter(item => !item.found && !item.duplicate).length;
+  const duplicateCount = checkedCodes.filter(item => item.duplicate).length;
+
+  document.getElementById('found-count').textContent = foundCount;
+  document.getElementById('not-found-count').textContent = notFoundCount;
+  document.getElementById('duplicate-count').textContent = duplicateCount;
+  document.getElementById('base-codes').textContent = baseCodes.length;
+
+  // Topilmagan kodlar tugmasini faollashtirish
+  document.getElementById('download-notfound-btn').disabled = notFoundCount === 0;
+}
+  </script>
+</body>
+</html>
